@@ -2,7 +2,7 @@ import {Injectable, Logger} from '@nestjs/common'
 import {PrismaService} from 'src/prisma.service'
 import {Cron} from '@nestjs/schedule'
 
-const START_BLOCK = process.env.START_BLOCK ?? 17583000
+const START_BLOCK = process.env.START_BLOCK ?? '17583000'
 
 @Injectable()
 export class PickerService {
@@ -30,7 +30,7 @@ export class PickerService {
 			const lastBlockInChain = (await response.json()).result
 			return lastBlockInChain
 		} catch (error) {
-			console.error(error.message)
+			console.error(error)
 		}
 	}
 
@@ -39,7 +39,7 @@ export class PickerService {
 			const lastRecord = await this.getLastRecord()
 			let requestURI: string
 			if (!lastRecord) {
-				const block = START_BLOCK.toString(16)
+				const block = parseInt(START_BLOCK).toString(16)				
 				requestURI =
 					`https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${block}&boolean=true`
 			} else {
@@ -48,7 +48,7 @@ export class PickerService {
 					parseInt(await this.getLastBlockInChain(), 16) ===
 					lastBlockInList
 				) {
-					console.log('last block reached')
+					this.logger.debug('last block reached')
 					return
 				}
 				const nextBlock = (lastBlockInList + 1).toString(16)
@@ -65,8 +65,8 @@ export class PickerService {
 			const blockData = await response.json()
 
 			if (blockData.error) {
-				throw new Error(blockData.error.message)
-			}
+				throw new Error(blockData.error)
+			}		
 
 			const transactions = blockData.result.transactions
 
@@ -88,7 +88,7 @@ export class PickerService {
 			)
 			return this.create(transactionsData)
 		} catch (error) {
-			console.error(error.message)
+			console.error(error)
 		}
 	}
 
