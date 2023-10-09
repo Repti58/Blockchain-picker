@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common'
 import {PrismaService} from './../prisma.service'
 
-const range = parseInt(process.env.RANGE) ?? 100
+const range = parseInt(process.env.RANGE?? '100')
 
 @Injectable()
 export class ApiService {

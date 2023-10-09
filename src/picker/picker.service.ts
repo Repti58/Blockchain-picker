@@ -2,7 +2,7 @@ import {Injectable, Logger} from '@nestjs/common'
 import {PrismaService} from 'src/prisma.service'
 import {Cron} from '@nestjs/schedule'
 
-const START_BLOCK = parseInt(process.env.START_BLOCK) ?? '17583000'
+const START_BLOCK = parseInt(process.env.START_BLOCK?? '17583000')
 
 @Injectable()
 export class PickerService {
