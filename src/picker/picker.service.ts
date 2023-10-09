@@ -94,7 +94,7 @@ export class PickerService {
 
 	@Cron('0 * * * * *')
 	handleCron() {
-		this.logger.debug('Running a task every minute')
+		this.logger.verbose('Running a task every minute')
 		this.getBlock()
 	}
 }
