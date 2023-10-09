@@ -7,7 +7,7 @@ A Nest based application for receiving transactions from the Ethereum blockchain
 ```1.``` At intervals of 1 minute, it receives transaction data from blocks and stores it in the database.
 When restarting, it starts from where it left off before. It will collect until it reaches the last block in the blockchain.
 
-```2.``` Upon request, the application finds the address with the largest balance change in the selected block range
+```2.``` Upon request, the application finds the address with the largest balance change (Eth) in the selected block range
 
 
 ## Preparing
@@ -47,7 +47,7 @@ npm start
 
 ## Usage
 The application collects data in the background.<br>
-To get the address with the largest balance change, make a request to http://localhost:3000/api/max
+To get the address with the largest balance change (Eth), make a request to http://localhost:3000/api/max
 
 ## Settings
 Optionally you can add the following variables to .env file: <br><br>
