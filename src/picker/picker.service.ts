@@ -2,7 +2,7 @@ import {Injectable, Logger} from '@nestjs/common'
 import {PrismaService} from 'src/prisma.service'
 import {Cron} from '@nestjs/schedule'
 
-const START_BLOCK = process.env.START_BLOCK ?? '17583000'
+const START_BLOCK = parseInt(process.env.START_BLOCK) ?? '17583000'
 
 @Injectable()
 export class PickerService {
@@ -39,7 +39,7 @@ export class PickerService {
 			const lastRecord = await this.getLastRecord()
 			let requestURI: string
 			if (!lastRecord) {
-				const block = parseInt(START_BLOCK).toString(16)				
+				const block = START_BLOCK.toString(16)				
 				requestURI =
 					`https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${block}&boolean=true`
 			} else {
