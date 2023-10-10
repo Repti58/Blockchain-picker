@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { Cron } from "@nestjs/schedule";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const START_BLOCK = parseInt(process.env.START_BLOCK ?? "17583000");
 
@@ -27,32 +28,43 @@ export class TransactionService {
             const response = await fetch(
                 "https://api.etherscan.io/api?module=proxy&action=eth_blockNumber"
             );
-            const lastBlockInChain = (await response.json()).result;
-            return lastBlockInChain;
+            const lastBlockNumber = (await response.json()).result;
+            return lastBlockNumber;
         } catch (error) {
             console.error(error);
         }
     }
 
+    async getUri(lastRecord: {
+        id: number;
+        blockNumber: number;
+        from: string;
+        to: string;
+        value: Decimal;
+    }) {
+        let Uri: string;
+        if (!lastRecord) {
+            const block = START_BLOCK.toString(16);
+            Uri = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${block}&boolean=true`;
+        } else {
+            const lastBlockInList = +lastRecord.blockNumber;
+            if (
+                parseInt(await this.getLastBlockNumber(), 16) ===
+                lastBlockInList
+            ) {
+                this.logger.verbose("last block reached");
+                return;
+            }
+            const nextBlock = (lastBlockInList + 1).toString(16);
+            Uri = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${nextBlock}&boolean=true`;
+        }
+        return Uri;
+    }
+
     async getBlock() {
         try {
             const lastRecord = await this.getLastRecord();
-            let requestURI: string;
-            if (!lastRecord) {
-                const block = START_BLOCK.toString(16);
-                requestURI = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${block}&boolean=true`;
-            } else {
-                const lastBlockInList = lastRecord.blockNumber;
-                if (
-                    parseInt(await this.getLastBlockNumber(), 16) ===
-                    lastBlockInList
-                ) {
-                    this.logger.verbose("last block reached");
-                    return;
-                }
-                const nextBlock = (lastBlockInList + 1).toString(16);
-                requestURI = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${nextBlock}&boolean=true`;
-            }
+            let requestURI = await this.getUri(lastRecord);
 
             await new Promise((resolve) => setTimeout(resolve, 5000));
             const response = await fetch(requestURI);
