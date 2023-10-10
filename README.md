@@ -18,7 +18,7 @@ https://www.postgresql.org/download/
 #### Clone project:
 
 ```
-git clone https://github.com/Repti58/Blockchain-picker.git
+git clone https://github.com/Repti58/Etherscan_API_service.git
 ```
 
 #### Create .env file in the project directory: <br>
