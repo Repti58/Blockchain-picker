@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 export class ApiController {
   constructor(private readonly appService: ApiService) {}
 
-  @Get('max')
+  @Get('maxchange')
   getMaxChange() {
     return this.appService.getMaxChange()
   }

@@ -47,7 +47,7 @@ npm start
 
 ## Usage
 The application collects data in the background.<br>
-To get the address with the largest balance change (Eth), make a request to http://localhost:3000/api/max
+To get the address with the largest balance change (Eth), make a request to http://localhost:3000/api/maxchange
 
 ## Settings
 Optionally you can add the following variables to .env file: <br><br>

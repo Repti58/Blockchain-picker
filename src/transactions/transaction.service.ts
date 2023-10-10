@@ -5,9 +5,9 @@ import {Cron} from '@nestjs/schedule'
 const START_BLOCK = parseInt(process.env.START_BLOCK?? '17583000')
 
 @Injectable()
-export class PickerService {
+export class TransactionService {
 	constructor(private prisma: PrismaService) {}
-	private readonly logger = new Logger(PickerService.name)
+	private readonly logger = new Logger(TransactionService.name)
 
 	create(transactions: []) {
 		return this.prisma.transactions.createMany({data: transactions})
@@ -22,7 +22,7 @@ export class PickerService {
 		return lastRecord
 	}
 
-	async getLastBlockInChain() {
+	async getLastBlockNumber() {
 		try {
 			const response = await fetch(
 				'https://api.etherscan.io/api?module=proxy&action=eth_blockNumber'
@@ -45,10 +45,10 @@ export class PickerService {
 			} else {
 				const lastBlockInList = lastRecord.blockNumber
 				if (
-					parseInt(await this.getLastBlockInChain(), 16) ===
+					parseInt(await this.getLastBlockNumber(), 16) ===
 					lastBlockInList
 				) {
-					this.logger.debug('last block reached')
+					this.logger.verbose('last block reached')
 					return
 				}
 				const nextBlock = (lastBlockInList + 1).toString(16)
