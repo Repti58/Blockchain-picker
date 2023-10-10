@@ -6,9 +6,9 @@ import { Decimal } from "@prisma/client/runtime/library";
 const START_BLOCK = parseInt(process.env.START_BLOCK ?? "17583000");
 
 @Injectable()
-export class TransactionService {
+export class EtherscanClientService {
     constructor(private prisma: PrismaService) {}
-    private readonly logger = new Logger(TransactionService.name);
+    private readonly logger = new Logger(EtherscanClientService.name);
 
     create(transactions: []) {
         return this.prisma.transactions.createMany({ data: transactions });

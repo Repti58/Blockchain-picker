@@ -1,9 +1,9 @@
 import { Controller, Get } from "@nestjs/common";
-import { ApiService } from "./api.service";
+import { TransactionService } from "./transaction.service";
 
 @Controller("api")
-export class ApiController {
-    constructor(private readonly appService: ApiService) {}
+export class TransactionController {
+    constructor(private readonly appService: TransactionService) {}
 
     @Get("maxchange")
     getMaxChange() {
