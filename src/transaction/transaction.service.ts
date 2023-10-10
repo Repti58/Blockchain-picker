@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-
-const range = parseInt(process.env.RANGE ?? "100");
+import {RANGE} from "./../config"
 
 @Injectable()
 export class TransactionService {
-    constructor(private prisma: PrismaService) {}
+    range: number
+    constructor(private prisma: PrismaService) {
+        this.range = parseInt(RANGE ?? "100")
+    }
     async getMaxChange() {
         try {
             let result: [{ adress: string; total_balance_change: string }] =
@@ -15,7 +17,7 @@ export class TransactionService {
                     SELECT "to" AS "address", SUM("value") AS "balance_change"
                     FROM "Transactions"
                     WHERE "blockNumber" > (
-                        SELECT MAX("blockNumber") - ${range}
+                        SELECT MAX("blockNumber") - ${this.range}
                         FROM "Transactions"
                     )
                     GROUP BY "to"
@@ -25,7 +27,7 @@ export class TransactionService {
                     SELECT "from" AS "address", SUM(-"value") AS "balance_change"
                     FROM "Transactions"
                     WHERE "blockNumber" > (
-                        SELECT MAX("blockNumber") - ${range}
+                        SELECT MAX("blockNumber") - ${this.range}
                         FROM "Transactions"
                     )
                     GROUP BY "from"

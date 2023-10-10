@@ -50,7 +50,7 @@ The application collects data in the background.<br>
 To get the address with the largest balance change (Eth), make a request to http://localhost:3000/api/maxchange
 
 ## Settings
-Optionally you can add the following variables to .env file: <br><br>
+Optionally you can change the values of these variables in the config.ts file: <br><br>
 ```START_BLOCK``` - initial block for data collection (default: 17583000)<br>
 ```RANGE``` - range to search for the address with the largest balance change (default: 100)
 

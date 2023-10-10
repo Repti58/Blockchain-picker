@@ -2,12 +2,14 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { Cron } from "@nestjs/schedule";
 import { Decimal } from "@prisma/client/runtime/library";
-
-const START_BLOCK = parseInt(process.env.START_BLOCK ?? "17583000");
+import {START_BLOCK} from "./../config"
 
 @Injectable()
 export class EtherscanClientService {
-    constructor(private prisma: PrismaService) {}
+    startBlock: number;
+    constructor(private prisma: PrismaService) {
+        this.startBlock = parseInt(START_BLOCK ?? "17583000")        
+    }
     private readonly logger = new Logger(EtherscanClientService.name);
 
     create(transactions: []) {
@@ -44,7 +46,7 @@ export class EtherscanClientService {
     }) {
         let Uri: string;
         if (!lastRecord) {
-            const block = START_BLOCK.toString(16);
+            const block = this.startBlock.toString(16);
             Uri = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${block}&boolean=true`;
         } else {
             const lastBlockInList = +lastRecord.blockNumber;
