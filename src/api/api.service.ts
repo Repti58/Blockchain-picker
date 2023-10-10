@@ -1,15 +1,15 @@
-import {Injectable} from '@nestjs/common'
-import {PrismaService} from './../prisma.service'
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "./../prisma.service";
 
-const range = parseInt(process.env.RANGE?? '100')
+const range = parseInt(process.env.RANGE ?? "100");
 
 @Injectable()
 export class ApiService {
-	constructor(private prisma: PrismaService) {}
-	async getMaxChange() {
-		try {
-			let result: [{adress: string; total_balance_change: string}] =
-				await this.prisma.$queryRaw`
+    constructor(private prisma: PrismaService) {}
+    async getMaxChange() {
+        try {
+            let result: [{ adress: string; total_balance_change: string }] =
+                await this.prisma.$queryRaw`
                 SELECT "address", SUM("balance_change") / POWER(10, 18) AS "total_balance_change"
                 FROM (
                     SELECT "to" AS "address", SUM("value") AS "balance_change"
@@ -33,11 +33,10 @@ export class ApiService {
                 GROUP BY "address"
                 ORDER BY "total_balance_change" DESC 
                 LIMIT 1
-            `
-			return result
-
-		} catch (error) {
-            console.error('SQL request error', error);            
+            `;
+            return result;
+        } catch (error) {
+            console.error("SQL request error", error);
         }
-	}
+    }
 }

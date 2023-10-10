@@ -1,13 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiService } from './api.service';
+import { Controller, Get } from "@nestjs/common";
+import { ApiService } from "./api.service";
 
-@Controller('api')
+@Controller("api")
 export class ApiController {
-  constructor(private readonly appService: ApiService) {}
+    constructor(private readonly appService: ApiService) {}
 
-  @Get('maxchange')
-  getMaxChange() {
-    return this.appService.getMaxChange()
-  }
-  
+    @Get("maxchange")
+    getMaxChange() {
+        return this.appService.getMaxChange();
+    }
 }
