@@ -1,4 +1,4 @@
-# Blockchain picker
+# Etherscan API service
 
 ## Description
 
