@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import {RANGE} from "./../config"
+import { GetMaxChangeException } from "src/utils/custom-exceptions";
 
 @Injectable()
 export class TransactionService {
@@ -39,6 +40,7 @@ export class TransactionService {
             return result;
         } catch (error) {
             console.error("SQL request error", error);
+            throw new GetMaxChangeException('get max change error')
         }
     }
 }

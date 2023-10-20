@@ -1,14 +1,15 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
-import { Cron } from "@nestjs/schedule";
-import { Decimal } from "@prisma/client/runtime/library";
-import {START_BLOCK} from "./../config"
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { Cron } from '@nestjs/schedule';
+import { Decimal, DefaultArgs } from '@prisma/client/runtime/library';
+import { START_BLOCK } from './../config';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class EtherscanClientService {
     startBlock: number;
     constructor(private prisma: PrismaService) {
-        this.startBlock = parseInt(START_BLOCK ?? "17583000")        
+        this.startBlock = parseInt(START_BLOCK ?? '17583000');
     }
     private readonly logger = new Logger(EtherscanClientService.name);
 
@@ -16,24 +17,33 @@ export class EtherscanClientService {
         return this.prisma.transactions.createMany({ data: transactions });
     }
 
-    getLastRecord() {
+    getLastRecord(): Prisma.Prisma__TransactionsClient<
+        {
+            id: number;
+            blockNumber: number;
+            from: string;
+            to: string;
+            value: Decimal;
+        },
+        null,
+        DefaultArgs
+    > {
         const lastRecord = this.prisma.transactions.findFirst({
             orderBy: {
-                id: "desc",
+                id: 'desc',
             },
         });
         return lastRecord;
     }
 
-    async getLastBlockNumber() {
+    async getLastBlockNumber(): Promise<string> {
         try {
             const response = await fetch(
-                "https://api.etherscan.io/api?module=proxy&action=eth_blockNumber"
+                'https://api.etherscan.io/api?module=proxy&action=eth_blockNumber',
             );
-            const lastBlockNumber = (await response.json()).result;
-            return lastBlockNumber;
+            return (await response.json()).result;
         } catch (error) {
-            console.error(error);
+            this.logger.error(error);  
         }
     }
 
@@ -43,27 +53,26 @@ export class EtherscanClientService {
         from: string;
         to: string;
         value: Decimal;
-    }) {
-        let Uri: string;
+    }): Promise<string> {
+        let block: string;
         if (!lastRecord) {
-            const block = this.startBlock.toString(16);
-            Uri = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${block}&boolean=true`;
+            block = this.startBlock.toString(16);
         } else {
             const lastBlockInList = +lastRecord.blockNumber;
             if (
                 parseInt(await this.getLastBlockNumber(), 16) ===
                 lastBlockInList
             ) {
-                this.logger.verbose("last block reached");
+                this.logger.verbose('last block reached');
                 return;
             }
-            const nextBlock = (lastBlockInList + 1).toString(16);
-            Uri = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${nextBlock}&boolean=true`;
+            block = (lastBlockInList + 1).toString(16);
         }
+        const Uri = `https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=0x${block}&boolean=true`;
         return Uri;
     }
 
-    async getBlock() {
+    async getBlock(): Promise<Prisma.BatchPayload> {
         try {
             const lastRecord = await this.getLastRecord();
             let requestURI = await this.getUri(lastRecord);
@@ -72,7 +81,7 @@ export class EtherscanClientService {
             const response = await fetch(requestURI);
 
             if (!response.ok) {
-                throw new Error("Fetch error");
+                throw new Error('Fetch error');
             }
 
             const blockData = await response.json();
@@ -97,17 +106,17 @@ export class EtherscanClientService {
                         to,
                         value: parseInt(value, 16),
                     };
-                }
+                },
             );
             return this.create(transactionsData);
         } catch (error) {
-            console.error(error);
+            this.logger.error(error);
         }
     }
 
-    @Cron("0 * * * * *")
+    @Cron('0 * * * * *')
     handleCron() {
-        this.logger.verbose("Running a task every minute");
+        this.logger.verbose('Running a task every minute');
         this.getBlock();
     }
 }
