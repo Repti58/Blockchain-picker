@@ -2,7 +2,7 @@
 
 ## Description
 
-A Nest based application for receiving transactions from the Ethereum blockchain.
+Application for receiving transactions from the Ethereum blockchain.
 
 ```1.``` At intervals of 1 minute, it receives transaction data from blocks and stores it in the database.
 When restarting, it starts from where it left off before. It will collect until it reaches the last block in the blockchain.
